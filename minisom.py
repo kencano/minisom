@@ -4,6 +4,7 @@ from numpy import (array, unravel_index, nditer, linalg, random, subtract,
                    power, exp, pi, zeros, arange, outer, meshgrid, dot)
 from collections import defaultdict
 from warnings import warn
+from click import progressbar
 
 # for unit tests
 from numpy.testing import assert_almost_equal, assert_array_almost_equal
@@ -197,6 +198,17 @@ class MiniSom(object):
             idx = iteration % (len(data)-1)
             self.update(data[idx], self.winner(data[idx]), iteration)
             iteration += 1
+
+    def train_batch_with_progressbar(self, data, num_iteration):
+        """Trains using all the vectors in data sequentially"""
+        self._init_T(len(data)*num_iteration)
+        iteration = 0
+        with progressbar(length=num_iteration) as bar:
+            while iteration < num_iteration:
+                idx = iteration % (len(data)-1)
+                self.update(data[idx], self.winner(data[idx]), iteration)
+                iteration += 1
+                bar.update(1)
 
     def _init_T(self, num_iteration):
         """Initializes the parameter T needed to adjust the learning rate"""
